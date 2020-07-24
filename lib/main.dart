@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+
 import './models/transaction.dart';
 import './widgets/transaction_list.dart';
 import './widgets/new_transaction.dart';
+import './widgets/chart.dart';
 
 void main() {
   runApp(
@@ -13,8 +15,31 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter App',
+      title: 'Expense Tracker ',
       home: ExpenseTracker(),
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+        accentColor: Colors.amber,
+        fontFamily: 'Quicksand',
+        textTheme: ThemeData.light().textTheme.copyWith(
+              // ignore: deprecated_member_use
+              title: TextStyle(
+                fontFamily: 'OpenSans',
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+        appBarTheme: AppBarTheme(
+          textTheme: ThemeData.light().textTheme.copyWith(
+                // ignore: deprecated_member_use
+                title: TextStyle(
+                  fontFamily: 'OpenSans',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+        ),
+      ),
     );
   }
 }
@@ -25,20 +50,7 @@ class ExpenseTracker extends StatefulWidget {
 }
 
 class _ExpenseTrackerState extends State<ExpenseTracker> {
-  final List<Transaction> _transactions = [
-    Transaction(
-      amount: 15.50,
-      dateTime: DateTime.now(),
-      id: '1',
-      title: 'Groceries',
-    ),
-    Transaction(
-      amount: 20,
-      dateTime: DateTime.now(),
-      id: '2',
-      title: 'Rent',
-    ),
-  ];
+  final List<Transaction> _transactions = [];
 
   void _addTransaction(String txTitle, double txAmount) {
     String newTransactionId = (_transactions.length + 1).toString();
@@ -62,6 +74,16 @@ class _ExpenseTrackerState extends State<ExpenseTracker> {
     );
   }
 
+  List<Transaction> get getRecentTransaction {
+    return _transactions
+        .where(
+          (tx) => tx.dateTime.isAfter(
+            DateTime.now().subtract(Duration(days: 7)),
+          ),
+        )
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,13 +103,8 @@ class _ExpenseTrackerState extends State<ExpenseTracker> {
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            Container(
-              child: Card(
-                child: Text('CHART'),
-                color: Colors.blue,
-                elevation: 5,
-              ),
-              width: double.infinity,
+            Chart(
+              getRecentTransaction,
             ),
             TransactionList(
               _transactions,
