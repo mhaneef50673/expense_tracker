@@ -22,13 +22,15 @@ class MyApp extends StatelessWidget {
         accentColor: Colors.amber,
         fontFamily: 'Quicksand',
         textTheme: ThemeData.light().textTheme.copyWith(
-              // ignore: deprecated_member_use
-              title: TextStyle(
-                fontFamily: 'OpenSans',
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+            // ignore: deprecated_member_use
+            title: TextStyle(
+              fontFamily: 'OpenSans',
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
             ),
+            button: TextStyle(
+              color: Colors.white,
+            )),
         appBarTheme: AppBarTheme(
           textTheme: ThemeData.light().textTheme.copyWith(
                 // ignore: deprecated_member_use
@@ -52,18 +54,19 @@ class ExpenseTracker extends StatefulWidget {
 class _ExpenseTrackerState extends State<ExpenseTracker> {
   final List<Transaction> _transactions = [];
 
-  void _addTransaction(String txTitle, double txAmount) {
+  void _addTransaction(String txTitle, double txAmount, DateTime selectedDate) {
     String newTransactionId = (_transactions.length + 1).toString();
     setState(() {
       _transactions.add(Transaction(
-          id: newTransactionId,
-          title: txTitle,
-          amount: txAmount,
-          dateTime: DateTime.now()));
+        id: newTransactionId,
+        title: txTitle,
+        amount: txAmount,
+        dateTime: selectedDate,
+      ));
     });
   }
 
-  void startAddTransaction(BuildContext ctx) {
+  void _startAddTransaction(BuildContext ctx) {
     showModalBottomSheet(
       context: ctx,
       builder: (_) {
@@ -72,6 +75,12 @@ class _ExpenseTrackerState extends State<ExpenseTracker> {
         );
       },
     );
+  }
+
+  void _deleteTransaction(String id) {
+    setState(() {
+      _transactions.removeWhere((tx) => tx.id == id);
+    });
   }
 
   List<Transaction> get getRecentTransaction {
@@ -96,7 +105,7 @@ class _ExpenseTrackerState extends State<ExpenseTracker> {
             icon: Icon(
               Icons.add,
             ),
-            onPressed: () => startAddTransaction(context),
+            onPressed: () => _startAddTransaction(context),
           )
         ],
       ),
@@ -108,13 +117,14 @@ class _ExpenseTrackerState extends State<ExpenseTracker> {
             ),
             TransactionList(
               _transactions,
+              _deleteTransaction,
             ),
           ],
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => startAddTransaction(context),
+        onPressed: () => _startAddTransaction(context),
         child: Icon(Icons.add),
       ),
     );
