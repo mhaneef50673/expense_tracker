@@ -11,12 +11,9 @@ class TransactionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 450,
-      child: _transactions.isEmpty
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+    return _transactions.isEmpty
+        ? LayoutBuilder(builder: (ctx, constraints) {
+            return Column(
               children: <Widget>[
                 Text(
                   'No transactions to display',
@@ -27,50 +24,57 @@ class TransactionList extends StatelessWidget {
                   height: 20,
                 ),
                 Container(
-                  height: 200,
+                  height: constraints.maxHeight * 0.6,
                   child: Image.asset(
                     'assets/images/waiting.png',
                     fit: BoxFit.fill,
                   ),
-                )
+                ),
               ],
-            )
-          : ListView.builder(
-              itemCount: _transactions.length,
-              itemBuilder: (ctx, index) {
-                return Card(
-                  elevation: 5,
-                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      radius: 30,
-                      child: Padding(
-                        padding: EdgeInsets.all(6.0),
-                        child: FittedBox(
-                          child: Text(
-                            '\$${_transactions[index].amount}',
-                          ),
+            );
+          })
+        : ListView.builder(
+            itemCount: _transactions.length,
+            itemBuilder: (ctx, index) {
+              return Card(
+                elevation: 5,
+                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    radius: 30,
+                    child: Padding(
+                      padding: EdgeInsets.all(6.0),
+                      child: FittedBox(
+                        child: Text(
+                          '\$${_transactions[index].amount}',
                         ),
                       ),
                     ),
-                    title: Text(
-                      _transactions[index].title,
-                      // ignore: deprecated_member_use
-                      style: Theme.of(context).textTheme.title,
-                    ),
-                    subtitle: Text(
-                      DateFormat.yMMMd().format(_transactions[index].dateTime),
-                    ),
-                    trailing: IconButton(
-                        icon: Icon(
-                          Icons.delete,
-                          color: Theme.of(context).errorColor,
-                        ),
-                        onPressed: () => _deleteTx(_transactions[index].id)),
                   ),
-                );
-              },
-            ),
-    );
+                  title: Text(
+                    _transactions[index].title,
+                    // ignore: deprecated_member_use
+                    style: Theme.of(context).textTheme.title,
+                  ),
+                  subtitle: Text(
+                    DateFormat.yMMMd().format(_transactions[index].dateTime),
+                  ),
+                  trailing: MediaQuery.of(context).size.width > 460
+                      ? FlatButton.icon(
+                          textColor: Theme.of(context).errorColor,
+                          icon: Icon(Icons.delete),
+                          label: Text('Delete'),
+                          onPressed: () => _deleteTx(_transactions[index].id),
+                        )
+                      : IconButton(
+                          icon: Icon(
+                            Icons.delete,
+                            color: Theme.of(context).errorColor,
+                          ),
+                          onPressed: () => _deleteTx(_transactions[index].id)),
+                ),
+              );
+            },
+          );
   }
 }

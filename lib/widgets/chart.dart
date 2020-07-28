@@ -38,7 +38,7 @@ class Chart extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 6,
-      margin: EdgeInsets.all(10),
+      margin: EdgeInsets.only(top: 20, bottom: 20, left: 10, right: 10),
       child: Padding(
         padding: EdgeInsets.all(10),
         child: Row(
