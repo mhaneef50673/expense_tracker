@@ -13,7 +13,7 @@ class AdaptiveFlatButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Platform.isIOS
         ? Container(
-            margin: EdgeInsets.only(left: 75),
+            margin: EdgeInsets.only(left: 45),
             child: CupertinoButton(
                 child: Text(
                   _text,

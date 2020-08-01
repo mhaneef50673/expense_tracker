@@ -97,19 +97,76 @@ class _ExpenseTrackerState extends State<ExpenseTracker> {
         .toList();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final isLandScape = mediaQuery.orientation == Orientation.landscape;
-    final PreferredSizeWidget appBar = Platform.isIOS
+  List<Widget> buildLandscapeContent(
+    MediaQueryData mediaQuery,
+    PreferredSizeWidget appBar,
+    Widget txListWidget,
+  ) {
+    return [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'Show chart',
+            // ignore: deprecated_member_use
+            style: Theme.of(context).textTheme.title,
+          ),
+          Switch.adaptive(
+              activeColor: Theme.of(context).accentColor,
+              value: _showChart,
+              onChanged: (val) {
+                setState(() {
+                  _showChart = val;
+                });
+              }),
+        ],
+      ),
+      _showChart
+          ? Container(
+              height: (mediaQuery.size.height -
+                      mediaQuery.padding.top -
+                      appBar.preferredSize.height) *
+                  0.7,
+              child: Chart(
+                getRecentTransaction,
+              ),
+            )
+          : txListWidget,
+    ];
+  }
+
+  List<Widget> buildPortraitContent(
+    MediaQueryData mediaQuery,
+    PreferredSizeWidget appBar,
+    Widget txListWidget,
+  ) {
+    return [
+      Container(
+        height: (mediaQuery.size.height -
+                mediaQuery.padding.top -
+                appBar.preferredSize.height) *
+            0.3,
+        child: Chart(
+          getRecentTransaction,
+        ),
+      ),
+      txListWidget,
+    ];
+  }
+
+  Widget buildAppBar() {
+    return Platform.isIOS
         ? CupertinoNavigationBar(
             middle: Text(
               'Expense Tracker',
+              style: TextStyle(color: Colors.white),
             ),
             trailing: GestureDetector(
               onTap: () => _startAddTransaction(context),
               child: Icon(CupertinoIcons.add),
             ),
+            backgroundColor: Theme.of(context).primaryColor,
+            actionsForegroundColor: Colors.white,
           )
         : AppBar(
             title: Text(
@@ -124,6 +181,13 @@ class _ExpenseTrackerState extends State<ExpenseTracker> {
               )
             ],
           );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final isLandScape = mediaQuery.orientation == Orientation.landscape;
+    final PreferredSizeWidget appBar = buildAppBar();
     final txListWidget = Container(
       height: (mediaQuery.size.height -
               mediaQuery.padding.top -
@@ -139,47 +203,17 @@ class _ExpenseTrackerState extends State<ExpenseTracker> {
       child: Column(
         children: <Widget>[
           if (isLandScape)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'Show chart',
-                  // ignore: deprecated_member_use
-                  style: Theme.of(context).textTheme.title,
-                ),
-                Switch.adaptive(
-                    activeColor: Theme.of(context).accentColor,
-                    value: _showChart,
-                    onChanged: (val) {
-                      setState(() {
-                        _showChart = val;
-                      });
-                    }),
-              ],
+            ...buildLandscapeContent(
+              mediaQuery,
+              appBar,
+              txListWidget,
             ),
           if (!isLandScape)
-            Container(
-              height: (mediaQuery.size.height -
-                      mediaQuery.padding.top -
-                      appBar.preferredSize.height) *
-                  0.3,
-              child: Chart(
-                getRecentTransaction,
-              ),
+            ...buildPortraitContent(
+              mediaQuery,
+              appBar,
+              txListWidget,
             ),
-          if (!isLandScape) txListWidget,
-          if (isLandScape)
-            _showChart
-                ? Container(
-                    height: (mediaQuery.size.height -
-                            mediaQuery.padding.top -
-                            appBar.preferredSize.height) *
-                        0.7,
-                    child: Chart(
-                      getRecentTransaction,
-                    ),
-                  )
-                : txListWidget,
         ],
       ),
     ));
